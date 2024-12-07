@@ -83,6 +83,11 @@ const SearchResult = () => {
   const [mockData, setMockData] = useState(initialMockData);
   const [isSearchFavorite, setIsSearchFavorite] = useState(false);
 
+  // 새로운 함수 추가
+  const handleMenuNavigation = (route) => {
+    router.push(`/(tabs)/menu/${route}`);
+  };
+
   // 출발역 <-> 도착역 교환
   const exchangeStations = () => {
     const temp = departureStation;
@@ -193,67 +198,72 @@ const SearchResult = () => {
 
   // 결과 카드 렌더링
   const renderResult = ({ item }) => (
-    <View style={[styles.resultCard, { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' }]}>
-      <View style={styles.header}>
-        {/* 소요 시간, 환승 정보 */}
-        <View style={styles.timeContainer}>
-          <Text style={[styles.label, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>소요시간</Text>
-          <Text style={[styles.time, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>{item.time}</Text>
+    <TouchableOpacity 
+      onPress={() => handleMenuNavigation('MainScreen')}
+      activeOpacity={0.7}
+    >
+      <View style={[styles.resultCard, { backgroundColor: isDarkMode ? '#2C2C2C' : '#FFFFFF' }]}>
+        <View style={styles.header}>
+          {/* 소요 시간, 환승 정보 */}
+          <View style={styles.timeContainer}>
+            <Text style={[styles.label, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>소요시간</Text>
+            <Text style={[styles.time, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>{item.time}</Text>
+          </View>
+          <Text style={[styles.details, { color: isDarkMode ? '#AAAAAA' : '#000000' }]}>
+            환승 {item.transfers}번 | {item.cost}
+          </Text>
+          
+          {/* 즐겨찾기 버튼*/}
+          <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.bookmark}>
+            <Image 
+              source={item.isFavorite ? StarIcon : EmptyStarIcon} 
+              style={[styles.icon, { tintColor: '#4FBFE5' }]} 
+            />
+            <Text style={[styles.bookmarkText, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>즐겨찾기</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={[styles.details, { color: isDarkMode ? '#AAAAAA' : '#000000' }]}>
-          환승 {item.transfers}번 | {item.cost}
-        </Text>
-        
-        {/* 즐겨찾기 버튼*/}
-        <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.bookmark}>
-          <Image 
-            source={item.isFavorite ? StarIcon : EmptyStarIcon} 
-            style={[styles.icon, { tintColor: '#4FBFE5' }]} 
-          />
-          <Text style={[styles.bookmarkText, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>즐겨찾기</Text>
-        </TouchableOpacity>
-      </View>
-      {/* 그래프 렌더링*/}
-      {renderGraph(item.steps)}
-      {/* 스텝 리스트 렌더링*/}
-      <View style={styles.steps}>
-        {item.steps.map((step, index) => {
-          const color = stepColors[step.type] || defaultColor;
-          const borderColor = stepBorderColors[step.type] || defaultColor;
+        {/* 그래프 렌더링*/}
+        {renderGraph(item.steps)}
+        {/* 스텝 리스트 렌더링*/}
+        <View style={styles.steps}>
+          {item.steps.map((step, index) => {
+            const color = stepColors[step.type] || defaultColor;
+            const borderColor = stepBorderColors[step.type] || defaultColor;
 
-          return (
-            <View key={index} style={styles.stepContainer}>
-              <View style={styles.step}>
-                <View
-                  style={[
-                    styles.commonCircle,
-                    styles.circle,
-                    { backgroundColor: color, borderColor: borderColor },
-                  ]}
-                >
-                  <Text style={[styles.circleText, { color: isDarkMode ? 'rgba(0, 0, 0, 0.6' : 'rgba(0, 0, 0, 0.4)' }]}>
-                    {step.type}
-                  </Text>
-                </View>
-                <View style={styles.stepTextContainer}>
-                  <Text style={[styles.stepStation, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
-                    {step.station} {step.type}
-                  </Text>
-                  {step.details ? (
-                    <Text style={[styles.stepDetails, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
-                      {step.details}
+            return (
+              <View key={index} style={styles.stepContainer}>
+                <View style={styles.step}>
+                  <View
+                    style={[
+                      styles.commonCircle,
+                      styles.circle,
+                      { backgroundColor: color, borderColor: borderColor },
+                    ]}
+                  >
+                    <Text style={[styles.circleText, { color: isDarkMode ? 'rgba(0, 0, 0, 0.6' : 'rgba(0, 0, 0, 0.4)' }]}>
+                      {step.type}
                     </Text>
-                  ) : null}
+                  </View>
+                  <View style={styles.stepTextContainer}>
+                    <Text style={[styles.stepStation, { color: isDarkMode ? '#FFFFFF' : '#000000' }]}>
+                      {step.station} {step.type}
+                    </Text>
+                    {step.details ? (
+                      <Text style={[styles.stepDetails, { color: isDarkMode ? '#AAAAAA' : '#666666' }]}>
+                        {step.details}
+                      </Text>
+                    ) : null}
+                  </View>
                 </View>
+                {index < item.steps.length - 1 && (
+                  <View style={[styles.line, { borderColor: isDarkMode ? '#444444' : '#E0E0E0' }]} />
+                )}
               </View>
-              {index < item.steps.length - 1 && (
-                <View style={[styles.line, { borderColor: isDarkMode ? '#444444' : '#E0E0E0' }]} />
-              )}
-            </View>
-          );
-        })}
+            );
+          })}
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -407,7 +417,7 @@ const styles = StyleSheet.create({
   },
   // 행 스타일 (출발역/도착역 입력과 버튼이 배치된 행)
   row: { 
-    flexDirection: 'row', // 가로 ��향 배치
+    flexDirection: 'row', // 가로 향 배치
     alignItems: 'center', // 수직 중앙 정렬
     justifyContent: 'center', // 가로 중앙 정렬
     marginBottom: 10, // 아래쪽 여백
@@ -513,7 +523,7 @@ const styles = StyleSheet.create({
   header: { 
     flexDirection: 'row', // 가로 방향 배치 
     justifyContent: 'space-between', // 양쪽 정렬
-    alignItems: 'center', // ��직 중앙 정렬
+    alignItems: 'center', // 직 중앙 정렬
     marginBottom: 10,
   },
   // 소요 시간 컨이너
@@ -616,7 +626,7 @@ const styles = StyleSheet.create({
     marginRight: 10 
   },
   circleText: { 
-    fontSize: 12, // 텍스트 크기
+    fontSize: 12, // ��스트 크기
     color: 'rgba(0, 0, 0, 0.4)', // 텍스트 색상
     textAlign: 'center', // 텍스트 중앙 정
     //fontWeight: 'bold', // 텍스트 굵기
