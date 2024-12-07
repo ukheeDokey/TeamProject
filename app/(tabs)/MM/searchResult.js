@@ -85,7 +85,7 @@ const SearchResult = () => {
 
   // 새로운 함수 추가
   const handleMenuNavigation = (route) => {
-    router.push(`/(tabs)/menu/${route}`);
+    router.push(`/(tabs)/MM/${route}`);
   };
 
   // 출발역 <-> 도착역 교환
